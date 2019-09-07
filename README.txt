@@ -2,6 +2,8 @@
 
 ## Student Name  : Steve Tu
 ## Student ID    : 918460002
+## Date          : 09/05/19
+## Class         : CSC415-01
 
 ## Steps:
 ## 1. First, open up IntelliJ and click Import Project and select the root of this project or csc415-MergeSort.
