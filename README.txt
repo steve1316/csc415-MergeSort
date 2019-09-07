@@ -1,4 +1,4 @@
-# csc415-MergeSort
+## csc415-MergeSort
 
 ## Student Name  : Steve Tu
 ## Student ID    : 918460002
