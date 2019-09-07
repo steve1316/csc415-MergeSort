@@ -4,80 +4,78 @@ Class: CSC415-01
 Date: 09/05/19
 */
 
-
 interface MergeSort<T>
 {
-    void sort(T[] items, int left, int middle, int right);
+    void sort(T[] items);
 }
 
 class MergeSortImpl<T extends Comparable<T>> implements MergeSort<T>
 {
-    public void sort(Comparable[] myArray, int left, int middle, int right)
+    public void sort(Comparable[] myArray)
     {
-        int leftArraySize = middle - left + 1;
-        int rightArraySize = right - middle;
+        Comparable[] tempArray = new Comparable[myArray.length];
 
-        Comparable[] leftArray = new Comparable[myArray.length];
-        Comparable[] rightArray = new Comparable[myArray.length];
+        //Begin the process of recursively calling sort for the left and right halves of tempArray.
+        sort(myArray, tempArray, 0, myArray.length - 1);
+    }
 
-        for(int i = 0; i < leftArraySize; i++)
+    public void sort(Comparable[] myArray, Comparable[] tempArray, int left, int right)
+    {
+        //Condition to exit out of recursion. myArray is now sorted from least to greatest.
+        if(right <= left)
         {
-            leftArray[i] = myArray[left + i];
+            return;
         }
 
-        for(int i = 0; i < rightArraySize; i++)
-        {
-            rightArray[i] = myArray[middle + i + 1];
-        }
+        //Get midpoint of myArray.
+        int midpoint = (left + right) / 2;
 
-        int i = 0;
-        int j = 0;
-        int k = 0;
+        //Recursively call for the left half of myArray.
+        sort(myArray, tempArray, left, midpoint);
 
-        while(i < leftArraySize && j < rightArraySize)
+        //Recursively call for the right half of myArray.
+        sort(myArray, tempArray, midpoint + 1, right);
+
+        //Call merge to begin merging the left and right halves while sorting them.
+        merge(myArray, tempArray, left, midpoint, right);
+    }
+
+    public void merge(Comparable[] myArray, Comparable[] tempArray, int left, int midpoint, int right)
+    {
+        //Copy over myArray to tempArray.
+        copyArray(myArray, tempArray);
+
+        int i = left;
+        int j = midpoint + 1;
+
+        //Begin sorting and merging of the half that called merge() back into myArray.
+        for(int k = left; k <= right; k++)
         {
-            if(leftArray[i].compareTo(rightArray[j]) <= 0)
+            //If index i is greater than midpoint, put element j of tempArray into myArray at position k.
+            if(i > midpoint)
             {
-                myArray[k] = leftArray[i];
-                i++;
+                myArray[k] = tempArray[j++];
             }
+            //If index j is greater than myArray's size, put element i of tempArray into myArray at position k.
+            else if(j > right)
+            {
+                myArray[k] = tempArray[i++];
+            }
+            //Else if element i of tempArray is less than element j of the same array, put element i of tempArray
+            // into myArray at position k.
+            else if(tempArray[i].compareTo(tempArray[j]) <= 0)
+            {
+                myArray[k] = tempArray[i++];
+            }
+            //Otherwise, put element j of tempArray into myArray at position k.
             else
             {
-                myArray[k] = rightArray[j];
-                j++;
+                myArray[k] = tempArray[j++];
             }
-
-            k++;
-        }
-
-        while(i < leftArraySize)
-        {
-            myArray[k] = leftArray[i];
-            i++;
-            k++;
-        }
-
-        while(j < rightArraySize)
-        {
-            myArray[k] = rightArray[j];
-            j++;
-            k++;
         }
     }
 
-    public void mergeSort(Comparable[] myArray, int left, int right)
-    {
-        if(left < right)
-        {
-            int middle = left + (right - left) / 2;
-
-            mergeSort(myArray, left, middle);
-            mergeSort(myArray, middle + 1, right);
-
-            sort(myArray, left, middle, right);
-        }
-    }
-
+    //This method will copy over the elements in myArray over to tempArray.
     public void copyArray(Comparable[] myArray, Comparable[] tempArray)
     {
         for(int i = 0; i < myArray.length; i++)
@@ -85,43 +83,70 @@ class MergeSortImpl<T extends Comparable<T>> implements MergeSort<T>
             tempArray[i] = myArray[i];
         }
     }
-
-
 }
 
 public class Tester
 {
     public static void main(String args[])
     {
-        System.out.println("\nWelcome to my Merge Sort Program!");
+        System.out.println("\nWelcome to my Merge Sort Program! This program is designed to sort generic data types from least to greatest.");
         System.out.println("----------------");
 
-        //Array of data types to be sorted. I'm using Integer objects as an example.
+        //Array of any data types to be sorted. This program is using array of Integers as an example but a String
+        // array is also provided. You can add your own, just make sure to name your array "myArray".
+
         Integer[] myArray = new Integer[] {1, 5, 2, 7, 9, 6, 4, 8, 10, 3};
         //String[] myArray = new String[] {"Extreme", "Berries", "Fair", "Copper", "Apple", "Deer"};
 
-        System.out.println("Unsorted Array:");
-        for (int i = 0; i < myArray.length; i++) {
-            System.out.println(myArray[i].toString());
-        }
+        //Print the unsorted array first.
+        printArray(myArray, false);
 
-        //Create an instance of MergeSortImpl
+        //Create an instance of MergeSortImpl.
         MergeSortImpl mergeSort = new MergeSortImpl();
 
-        int left = 0;
-        int right = myArray.length - 1;
-        int middle = (left + right) / 2;
+        //Sort the array.
+        mergeSort.sort(myArray);
 
-        //Sort the array of unknown data types.
-        mergeSort.mergeSort(myArray, left, right);
-
-        System.out.println("\n----------------");
-        System.out.println("Sorted Array:");
-        //Then print out the resultant array.
-        for (int i = 0; i < myArray.length; i++) {
-            System.out.println(myArray[i].toString());
-        }
+        //Then print out the sorted array.
+        printArray(myArray, true);
 
         System.exit(0);
+    }
+
+    static public void printArray(Comparable[] myArray, boolean isSorted)
+    {
+        if(!isSorted)
+        {
+            System.out.println("Unsorted Array:\n");
+            System.out.print("{");
+            for (int i = 0; i < myArray.length; i++)
+            {
+                if(i == myArray.length - 1)
+                {
+                    System.out.print(myArray[i].toString() + "}");
+                }
+                else
+                {
+                    System.out.print(myArray[i].toString() + ", ");
+                }
+            }
+        }
+        else
+        {
+            System.out.println("\n----------------");
+            System.out.println("Sorted Array:\n");
+            System.out.print("{");
+            for (int i = 0; i < myArray.length; i++)
+            {
+                if(i == myArray.length - 1)
+                {
+                    System.out.print(myArray[i].toString() + "}");
+                }
+                else
+                {
+                    System.out.print(myArray[i].toString() + ", ");
+                }
+            }
+        }
     }
 }
